@@ -1,0 +1,186 @@
+{
+  "Motor_Positions": {
+    "highvoltagecmd": {
+      "-pos": "1.00000",
+      "-units": "mm",
+      "-description": "High Voltage ON OFF Device",
+      "-type": "FLOAT32",
+      "#text": "1.000000"
+    },
+    "selector_speed": {
+      "-pos": "5319.20000",
+      "-units": "rpm",
+      "-description": "Velocity Selector speed",
+      "-type": "FLOAT32",
+      "#text": "5319.200000"
+    },
+    "selector_tilt": {
+      "-pos": "0.00000",
+      "-units": "deg",
+      "-description": "Velocity Selector angle",
+      "-type": "FLOAT32",
+      "#text": "0.000000"
+    },
+    "cuv1": {
+      "-pos": "25.00000",
+      "-units": "C",
+      "-description": "Quantum TLC 42E Temperature Setpoint.",
+      "-type": "FLOAT32",
+      "#text": "25.000000"
+    },
+    "cuv2": {
+      "-pos": "25.00000",
+      "-units": "C",
+      "-description": "Quantum TLC 42E Temperature Setpoint.",
+      "-type": "FLOAT32",
+      "#text": "25.000000"
+    },
+    "cuv3": {
+      "-pos": "25.00000",
+      "-units": "C",
+      "-description": "Quantum TLC 42E Temperature Setpoint.",
+      "-type": "FLOAT32",
+      "#text": "25.000000"
+    },
+    "cuv4": {
+      "-pos": "25.00000",
+      "-units": "C",
+      "-description": "Quantum TLC 42E Temperature Setpoint.",
+      "-type": "FLOAT32",
+      "#text": "25.000000"
+    },
+    "coll_1": {
+      "-pos": "guide",
+      "-units": "mm",
+      "-description": "SANS Collimator #1",
+      "-type": "FLOAT32",
+      "#text": "220.244175"
+    },
+    "coll_2": {
+      "-pos": "guide",
+      "-units": "mm",
+      "-description": "SANS Collimator #2",
+      "-type": "FLOAT32",
+      "#text": "221.574881"
+    },
+    "coll_3": {
+      "-pos": "guide",
+      "-units": "mm",
+      "-description": "SANS Collimator #3",
+      "-type": "FLOAT32",
+      "#text": "225.108834"
+    },
+    "coll_4": {
+      "-pos": "guide",
+      "-units": "mm",
+      "-description": "SANS Collimator #4",
+      "-type": "FLOAT32",
+      "#text": "221.372049"
+    },
+    "coll_5": {
+      "-pos": "guide",
+      "-units": "mm",
+      "-description": "SANS Collimator #5",
+      "-type": "FLOAT32",
+      "#text": "222.171832"
+    },
+    "coll_6": {
+      "-pos": "guide",
+      "-units": "mm",
+      "-description": "SANS Collimator #6",
+      "-type": "FLOAT32",
+      "#text": "221.094338"
+    },
+    "coll_7": {
+      "-pos": "aperture",
+      "-units": "mm",
+      "-description": "SANS Collimator #7",
+      "-type": "FLOAT32",
+      "#text": "101.846685"
+    },
+    "coll_8": {
+      "-pos": "open",
+      "-units": "mm",
+      "-description": "SANS Collimator #8",
+      "-type": "FLOAT32",
+      "#text": "3.120441"
+    },
+    "nguides": {
+      "-pos": "6.00000",
+      "-units": "number",
+      "-description": "Number of guides",
+      "-type": "FLOAT32",
+      "#text": "6.000000"
+    },
+    "attenuator_pos": {
+      "-pos": "x10k",
+      "-units": "mm",
+      "-description": "Attenuator stage position",
+      "-type": "FLOAT32",
+      "#text": "-259.499102"
+    },
+    "beam_trap_x": {
+      "-pos": "77.00000",
+      "-units": "mm",
+      "-description": "Beamtrap X position (mm)",
+      "-type": "FLOAT32",
+      "#text": "76.999998"
+    },
+    "dcal": {
+      "-pos": "4.99988",
+      "-units": "mm",
+      "-description": "Detector Calibration Bar (mm)",
+      "-type": "FLOAT32",
+      "#text": "4.999881"
+    },
+    "detector_trans": {
+      "-pos": "1.00000",
+      "-units": "mm",
+      "-description": "Horizontal detector translation (mm)",
+      "-type": "FLOAT32",
+      "#text": "0.999998"
+    },
+    "sample_det_dist": {
+      "-pos": "1.70000",
+      "-units": "m",
+      "-description": "Control the distance from the sample to the detector.",
+      "-type": "FLOAT32",
+      "#text": "1.700000"
+    },
+    "sample_x": {
+      "-pos": "-127.10163",
+      "-units": "mm",
+      "-description": "Sample Changer X stage position LONG STAGE",
+      "-type": "FLOAT32",
+      "#text": "-127.101626"
+    },
+    "trap_y_101mm": {
+      "-pos": "1.00000",
+      "-units": "mm",
+      "-description": "200mm Beamtrap Y position",
+      "-type": "FLOAT32",
+      "#text": "1.000000"
+    },
+    "trap_y_25mm": {
+      "-pos": "1.00005",
+      "-units": "mm",
+      "-description": "25mm Beamtrap Y position",
+      "-type": "FLOAT32",
+      "#text": "1.000049"
+    },
+    "trap_y_50mm": {
+      "-pos": "1.00005",
+      "-units": "mm",
+      "-description": "40mm Beamtrap Y position",
+      "-type": "FLOAT32",
+      "#text": "1.000049"
+    },
+    "trap_y_76mm": {
+      "-pos": "400.00001",
+      "-units": "mm",
+      "-description": "100mm Beamtrap Y position",
+      "-type": "FLOAT32",
+      "#text": "400.000013"
+    }
+  }
+}

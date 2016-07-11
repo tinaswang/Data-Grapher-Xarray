@@ -1,0 +1,28 @@
+<Motor_Positions>
+<highvoltagecmd pos="1.00000" units="mm" description="High Voltage ON OFF Device" type="FLOAT32">1.000000</highvoltagecmd>
+<selector_speed pos="5319.20000" units="rpm" description="Velocity Selector speed" type="FLOAT32">5319.200000</selector_speed>
+<selector_tilt pos="0.00000" units="deg" description="Velocity Selector angle" type="FLOAT32">0.000000</selector_tilt>
+<cuv1 pos="25.00000" units="C" description="Quantum TLC 42E Temperature Setpoint." type="FLOAT32">25.000000</cuv1>
+<cuv2 pos="25.00000" units="C" description="Quantum TLC 42E Temperature Setpoint." type="FLOAT32">25.000000</cuv2>
+<cuv3 pos="25.00000" units="C" description="Quantum TLC 42E Temperature Setpoint." type="FLOAT32">25.000000</cuv3>
+<cuv4 pos="25.00000" units="C" description="Quantum TLC 42E Temperature Setpoint." type="FLOAT32">25.000000</cuv4>
+<coll_1 pos="guide" units="mm" description="SANS Collimator #1" type="FLOAT32">220.244175</coll_1>
+<coll_2 pos="guide" units="mm" description="SANS Collimator #2" type="FLOAT32">221.574881</coll_2>
+<coll_3 pos="guide" units="mm" description="SANS Collimator #3" type="FLOAT32">225.108834</coll_3>
+<coll_4 pos="guide" units="mm" description="SANS Collimator #4" type="FLOAT32">221.372049</coll_4>
+<coll_5 pos="guide" units="mm" description="SANS Collimator #5" type="FLOAT32">222.171832</coll_5>
+<coll_6 pos="guide" units="mm" description="SANS Collimator #6" type="FLOAT32">221.094338</coll_6>
+<coll_7 pos="aperture" units="mm" description="SANS Collimator #7" type="FLOAT32">101.846685</coll_7>
+<coll_8 pos="open" units="mm" description="SANS Collimator #8" type="FLOAT32">3.120441</coll_8>
+<nguides pos="6.00000" units="number" description="Number of guides" type="FLOAT32">6.000000</nguides>
+<attenuator_pos pos="x10k" units="mm" description="Attenuator stage position" type="FLOAT32">-259.499102</attenuator_pos>
+<beam_trap_x pos="77.00000" units="mm" description="Beamtrap X position (mm)" type="FLOAT32">76.999998</beam_trap_x>
+<dcal pos="4.99988" units="mm" description="Detector Calibration Bar (mm)" type="FLOAT32">4.999881</dcal>
+<detector_trans pos="1.00000" units="mm" description="Horizontal detector translation (mm)" type="FLOAT32">0.999998</detector_trans>
+<sample_det_dist pos="1.70000" units="m" description="Control the distance from the sample to the detector." type="FLOAT32">1.700000</sample_det_dist>
+<sample_x pos="-127.10163" units="mm" description="Sample Changer X stage position LONG STAGE" type="FLOAT32">-127.101626</sample_x>
+<trap_y_101mm pos="1.00000" units="mm" description="200mm Beamtrap Y position" type="FLOAT32">1.000000</trap_y_101mm>
+<trap_y_25mm pos="1.00005" units="mm" description="25mm Beamtrap Y position" type="FLOAT32">1.000049</trap_y_25mm>
+<trap_y_50mm pos="1.00005" units="mm" description="40mm Beamtrap Y position" type="FLOAT32">1.000049</trap_y_50mm>
+<trap_y_76mm pos="400.00001" units="mm" description="100mm Beamtrap Y position" type="FLOAT32">400.000013</trap_y_76mm>
+</Motor_Positions>
