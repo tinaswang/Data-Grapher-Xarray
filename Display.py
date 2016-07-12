@@ -18,7 +18,8 @@ class Display(object):
         x_units_centered=data.coords['x'].values
         y_units_centered = data.coords['y'].values
         X = x_units_centered
-        Y =  y_units_centered + translation
+        Y = y_units_centered
+        print(center[0]/pixel_size_x - data.shape[1]/2,(center[1])/pixel_size_y)
         graph_data = [go.Contour(z=np.array(data.values), x=X, y=Y)]
         layout = go.Layout(
          xaxis=dict(title="Milimeters"),

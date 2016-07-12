@@ -25,15 +25,16 @@ class Operations(object):
     @staticmethod
     def find_center(center_data, size, translation):
         # finds the actual center of mass via Gaussian fitting
+        data = center_data.values
         pixel_size_x, pixel_size_y = size
         x = np.linspace(0, 255, 256)
         y = np.linspace(0, 255, 256)
         x, y = np.meshgrid(x, y)
-        data =  Operations.pad_to_square(center_data)
+
+        data =  Operations.pad_to_square(data)
         com = Operations.get_com(data)
         initial_guess = (300,com[1],com[0],4,4,0,0)
         popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y), data.ravel(), p0 = initial_guess)
-
         center_x = (popt[1]) * pixel_size_x
         center_y = popt[2] * pixel_size_y
         return center_x, center_y

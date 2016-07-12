@@ -27,7 +27,7 @@ class Data(object):
         dim_x, dim_y = detector_data.shape
         x_axis_units, y_axis_units = Operations.get_axes_units(data_shape=detector_data.shape,
                                                                pixel_size=[pixel_size_y, pixel_size_x])
-        # detector_data = xr.DataArray(detector_data)
+        y_axis_units = y_axis_units + translation
         detector_data = xr.DataArray(detector_data, coords=[y_axis_units, x_axis_units],
                                      dims=['y', 'x'])
         return (detector_data, distance_1, distance_2, pixel_size_x, pixel_size_y,
@@ -47,7 +47,7 @@ class Data(object):
             # self.center_data = np.rot90(Data.get_data(p_center)[0])
             # for data that needs to be rotated 90 degrees
             self.center_data = Data.get_data(p_center)[0]
-            self.center = Operations.find_center(center_data=self.center_data.values,
+            self.center = Operations.find_center(center_data=self.center_data,
                                                  size=self.size,
                                                  translation=self.translation)
         if self.backgrd_f:
@@ -90,9 +90,9 @@ def main():
     # d = Data(data_file="Data Examples/test_0032.xml",
     #     center_file="Data Examples/test_0032_trans_0001.xml",
     #     background_file="Data Examples/test_bg_0032.xml")
-    # d = Data(data_file="Data Examples/HiResSANS_exp9_scan0030_0001.xml",
-    #     center_file="Data Examples/HiResSANS_exp9_scan0006_0001.xml",
-    #     background_file="Data Examples/HiResSANS_exp9_scan0038_0001.xml")
+    d2 = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0030_0001.xml",
+             center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0006_0001.xml",
+             background_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0038_0001.xml")
     d.setup()
     # d.display()
     d.display2d()
