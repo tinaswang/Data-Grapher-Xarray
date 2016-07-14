@@ -38,7 +38,7 @@ class Data(object):
         self.data = Data.get_data(p_data)[0]
         # self.data = np.rot90(Data.get_data(self.p_data)[0])
         # for data that needs to be rotated 90 degrees
-        if self.center_f:
+        try:
             p_center = Parser(self.center_f)
             pixel_size_x = Data.get_data(p_center)[1]
             pixel_size_y = Data.get_data(p_center)[2]
@@ -50,6 +50,8 @@ class Data(object):
             self.center = Operations.find_center(center_data=self.center_data,
                                                  size=self.size,
                                                  translation=self.translation)
+        except:
+            pass
         try:
             p_backgrd = Parser(self.backgrd_f)
             self.backgrd_data = Data.get_data(p_backgrd)[0]

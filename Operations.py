@@ -5,8 +5,6 @@ import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import xarray
-import plotly.offline as py
-from plotly.graph_objs import Surface
 
 class Operations(object):
 
@@ -15,6 +13,7 @@ class Operations(object):
 
     @staticmethod
     def get_com(center_data):
+        # derived from http://stackoverflow.com/questions/18435003/ndimages-center-of-mass-to-calculate-the-position-of-a-gaussian-peak
         # gets a guess for the center of mass
         hist, bins = np.histogram(center_data.ravel(), normed=False, bins=49000)
         threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 50000][0]
@@ -45,6 +44,7 @@ class Operations(object):
 
     @staticmethod
     def integrate(size, center, data):  # Does the radial integration
+        # derived from http://stackoverflow.com/questions/21242011/most-efficient-way-to-calculate-radial-profile
         y, x = np.indices((data.shape))
         pixel_size_x, pixel_size_y = size
         y = pixel_size_y * y
@@ -73,6 +73,7 @@ class Operations(object):
     @staticmethod
     def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
         # model for the 2d Gaussian
+        # from http://stackoverflow.com/questions/21566379/fitting-a-2d-gaussian-function-using-scipy-optimize-curve-fit-valueerror-and-m
         (x, y) = xdata_tuple
         a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
         b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
@@ -83,6 +84,7 @@ class Operations(object):
 
     @staticmethod
     def pad_to_square(a, pad_value=0):
+        # from http://stackoverflow.com/questions/10871220/making-a-matrix-square-and-padding-it-with-desired-value-in-numpy
         m = a.reshape((a.shape[0], -1))
         padded = pad_value * np.ones(2 * [max(m.shape)], dtype=m.dtype)
         padded[0:m.shape[0], 0:m.shape[1]] = m
