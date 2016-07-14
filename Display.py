@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 import xarray as xr
 
+
 class Display(object):
 
     def __init__(self):
@@ -15,20 +16,20 @@ class Display(object):
         # Will not graph the correct center if data is rotated 90 degrees
         # because of repositioned axes
         pixel_size_x, pixel_size_y, translation = parameters
-        x_units_centered=data.coords['x'].values
+        x_units_centered = data.coords['x'].values
         y_units_centered = data.coords['y'].values
         X = x_units_centered
         Y = y_units_centered
-        print(center[0]/pixel_size_x - data.shape[1]/2,(center[1])/pixel_size_y)
-        graph_data = [go.Contour(z=np.array(data.values), x=X, y=Y)]
+        graph_data = [go.Heatmap(z=np.array(data.values), x=X, y=Y)]
+        # graph_data = [go.Contour(z=np.array(data.values), x=X, y=Y, line=dict(smoothing=0))]
         layout = go.Layout(
          xaxis=dict(title="Milimeters"),
          yaxis=dict(title="Milimeters"),
          showlegend=False,
          annotations=[
                  dict(
-                     x=center[0]/pixel_size_x - data.shape[1]/2,
-                     y=(center[1])/pixel_size_y,
+                     x=center[0],
+                     y=center[1],
                      xref='x',
                      yref='y',
                      text="Center",
@@ -53,20 +54,21 @@ class Display(object):
                  )
              ]
          )
-
-
         fig = go.Figure(data=graph_data, layout=layout)
         py.plot(fig)
-        # # Below: matplotlib version
-        # plt.imshow(Z)
-        # plt.scatter(center[0]/pixel_size_y, center[1]/pixel_size_x,color = "white", s = 50)
-        # plt.show()
+
+        # Below: matplotlib version
+        plt.imshow(data.values, interpolation = 'none', origin = "lower",
+                   extent=[X[0], X[-1], Y[0], Y[-1]])
+        plt.scatter(center[0], center[1], color = "white", s = 50)
+        plt.show()
 
     @staticmethod
     def plot1d(com, difference, profile, pixel_size):
-        # Makes the plotly line graph of the radial integration
+        # Makes a plotly line graph of the radial integration
         pixel_size_x, pixel_size_y = pixel_size
-        length = np.linspace(0, (pixel_size_x*profile.shape[0])/10.0**4.0, profile.shape[0])
+        length = np.linspace(0, (pixel_size_x*profile.shape[0])/10.0**4.0,
+                             profile.shape[0])
         trace = go.Scatter(
             x=length,
             y=profile,

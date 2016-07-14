@@ -40,12 +40,14 @@ def get_center_of_mass(d):
     # print(point)
 
 def main():
-    d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp253_scan0015_0001.xml",
-             center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp253_scan0010_0001.xml",
-             background_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp253_scan0011_0001.xml")
+    # d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp253_scan0015_0001.xml",
+    #          center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp253_scan0010_0001.xml",
+    #          background_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp253_scan0011_0001.xml")
     # d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0030_0001.xml",
     #          center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0006_0001.xml",
     #          background_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0038_0001.xml")
+    d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0000_0001.xml",
+             center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0000_0001.xml")
     get_center_of_mass(d)
 if __name__ == "__main__":
     main()

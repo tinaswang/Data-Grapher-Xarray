@@ -5,7 +5,8 @@ import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import xarray
-
+import plotly.offline as py
+from plotly.graph_objs import Surface
 
 class Operations(object):
 
@@ -16,7 +17,7 @@ class Operations(object):
     def get_com(center_data):
         # gets a guess for the center of mass
         hist, bins = np.histogram(center_data.ravel(), normed=False, bins=49000)
-        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
+        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 50000][0]
         mnorm2d = np.ma.masked_less(center_data, threshold)
         com = ndimage.measurements.center_of_mass(mnorm2d)
         com = [float(i) for i in com]
@@ -30,20 +31,23 @@ class Operations(object):
         x = np.linspace(0, 255, 256)
         y = np.linspace(0, 255, 256)
         x, y = np.meshgrid(x, y)
+        data = Operations.pad_to_square(data)
+        com = np.array(Operations.get_com(data))
 
-        data =  Operations.pad_to_square(data)
-        com = Operations.get_com(data)
-        initial_guess = (300,com[1],com[0],4,4,0,0)
-        popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y), data.ravel(), p0 = initial_guess)
-        center_x = (popt[1]) * pixel_size_x
-        center_y = popt[2] * pixel_size_y
+        initial_guess = (10000, com[1], com[0], 2, 2, 0, 0)
+        popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y),
+                                   data.ravel(), p0=initial_guess)
+        x_diff = (popt[1] - int(round(popt[1])))*pixel_size_x
+        y_diff = (popt[2] - int(round(popt[2])))* pixel_size_y + translation
+        center_x = center_data.coords['x'].values[int(round(popt[1]))] + x_diff
+        center_y = center_data.coords['y'].values[int((popt[2]))] + y_diff
         return center_x, center_y
 
     @staticmethod
-    def integrate(size, center, data): # Does the radial integration
+    def integrate(size, center, data):  # Does the radial integration
         y, x = np.indices((data.shape))
         pixel_size_x, pixel_size_y = size
-        y = pixel_size_y *y
+        y = pixel_size_y * y
         x = pixel_size_x*x
         r = np.sqrt((x - center[0])**2 + (y - center[1])**2)
         r = r.astype(np.int)
@@ -69,12 +73,12 @@ class Operations(object):
     @staticmethod
     def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
         # model for the 2d Gaussian
-        (x,y) = xdata_tuple
+        (x, y) = xdata_tuple
         a = (np.cos(theta)**2)/(2*sigma_x**2) + (np.sin(theta)**2)/(2*sigma_y**2)
         b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
         c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
-        g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo)
-                            + c*((y-yo)**2)))
+        g = offset + amplitude*np.exp(- (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo) +
+                                         c*((y-yo)**2)))
         return g.ravel()
 
     @staticmethod
