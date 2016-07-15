@@ -62,16 +62,16 @@ class Data(object):
             pass
 
     def display(self):  # Graphs a plotly line graph
-        if self.subtracted_data in locals():
+        try:
             p = Parser(self.data_f)
             profile = Operations.integrate(size=(self.size),
-                                           center=self.center,
-                                           data=self.subtracted_data.values)
-            Display.plot1d(com=self.center,
+                                           center=(self.center[2], self.center[3]),
+                                           data=self.subtracted_data)
+            Display.plot1d(com=(self.center[2], self.center[3]),
                            difference=self.subtracted_data.values,
                            profile=profile,
                            pixel_size=(self.size[0], self.size[1]))
-        else:
+        except:
             raise ValueError("Not enough data.")
 
     def display2d(self):
@@ -82,11 +82,11 @@ class Data(object):
             Display.plot2d(data=self.subtracted_data,
                            parameters=(self.size[0],
                                        self.size[1], self.translation),
-                           center=self.center)
+                           center=(self.center[0], self.center[1]))
         except:
             Display.plot2d(data=self.center_data, parameters=(self.size[0],
                             self.size[1], self.translation),
-                           center=self.center)
+                           center=(self.center[0], self.center[1]))
 
 
 def main():

@@ -16,7 +16,7 @@ class Operations(object):
         # derived from http://stackoverflow.com/questions/18435003/ndimages-center-of-mass-to-calculate-the-position-of-a-gaussian-peak
         # gets a guess for the center of mass
         hist, bins = np.histogram(center_data.ravel(), normed=False, bins=49000)
-        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 50000][0]
+        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
         mnorm2d = np.ma.masked_less(center_data, threshold)
         com = ndimage.measurements.center_of_mass(mnorm2d)
         com = [float(i) for i in com]
@@ -30,29 +30,30 @@ class Operations(object):
         x = np.linspace(0, 255, 256)
         y = np.linspace(0, 255, 256)
         x, y = np.meshgrid(x, y)
-        data = Operations.pad_to_square(data)
-        com = np.array(Operations.get_com(data))
 
-        initial_guess = (10000, com[1], com[0], 2, 2, 0, 0)
-        popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y),
-                                   data.ravel(), p0=initial_guess)
+        data =  Operations.pad_to_square(data)
+        com = Operations.get_com(data)
+        initial_guess = (300,com[1],com[0],4,4,0,0)
+        popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y), data.ravel(), p0 = initial_guess)
+
+
         x_diff = (popt[1] - int(round(popt[1])))*pixel_size_x
         y_diff = (popt[2] - int(round(popt[2])))* pixel_size_y + translation
         center_x = center_data.coords['x'].values[int(round(popt[1]))] + x_diff
         center_y = center_data.coords['y'].values[int((popt[2]))] + y_diff
-        return center_x, center_y
 
+        return center_x, center_y, popt[1]*pixel_size_x, popt[2]*pixel_size_y
     @staticmethod
     def integrate(size, center, data):  # Does the radial integration
         # derived from http://stackoverflow.com/questions/21242011/most-efficient-way-to-calculate-radial-profile
-        y, x = np.indices((data.shape))
+        y, x = np.indices((data.values.shape))
         pixel_size_x, pixel_size_y = size
-        y = pixel_size_y * y
+        y = pixel_size_y*y
         x = pixel_size_x*x
         r = np.sqrt((x - center[0])**2 + (y - center[1])**2)
         r = r.astype(np.int)
 
-        tbin = np.bincount(r.ravel(), data.ravel())
+        tbin = np.bincount(r.ravel(), data.values.ravel())
         nr = np.bincount(r.ravel())
         radialprofile = tbin / nr
         return radialprofile

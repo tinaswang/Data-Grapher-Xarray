@@ -1,9 +1,10 @@
-# Data GrapherXarray
-Version of Data-Grapher that uses xarray
+# Data Grapher Xarray
+
+Version of Data Grapher that uses xarray
 
 This program takes data from a beam data file, beam center file (optional),
 and background file (optional). These initial files must be in XML. There is a
-version of this program that does not use [xarray] (xarray.pydata.org).
+version of this program that does not use xarray[] (xarray.pydata.org).
 
 ##How to Use
 
@@ -45,9 +46,12 @@ background has been provided), at minimum, the center file have been provided.
 
 ##Files Included
 
-* Display.py graphs the data
-* Operations.py is a static class that does most of the calculation (radial
+*   Display.py: graphs the data
+
+*   Operations.py: is a static class that does most of the calculation (radial
 integration and center of mass)
-* Parser.py turns the XML files into usable python dictionaries and can also
+
+*   Parser.py: turns the XML files into usable python dictionaries and can also
 dump as JSON files and JSON strings.
-* Data.py bundles the three other files together.
+
+*   Data.py: bundles the three other files together.
