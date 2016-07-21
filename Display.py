@@ -20,6 +20,7 @@ class Display(object):
         y_units_centered = data.coords['y'].values
         X = x_units_centered
         Y = y_units_centered
+
         graph_data = [go.Heatmap(z=np.array(data.values), x=X, y=Y)]
         # graph_data = [go.Contour(z=np.array(data.values), x=X, y=Y, line=dict(smoothing=0))]
         layout = go.Layout(
@@ -54,14 +55,15 @@ class Display(object):
                  )
              ]
          )
-        fig = go.Figure(data=graph_data, layout=layout)
+        fig = go.Figure(data=graph_data)
+        # fig = go.Figure(data=graph_data, layout=layout)
         py.plot(fig)
 
         # Below: matplotlib version
-        plt.imshow(data.values, interpolation = 'none', origin = "lower",
-                   extent=[X[0], X[-1], Y[0], Y[-1]])
-        plt.scatter(center[0], center[1], color = "white", s = 60)
-        plt.show()
+        # plt.imshow(data.values, interpolation = 'none', origin = "lower",
+        #            extent=[X[0], X[-1], Y[0], Y[-1]])
+        # plt.scatter(center[0], center[1], color = "white", s = 100)
+        # plt.show()
 
     @staticmethod
     def plot1d(com, difference, profile, pixel_size):

@@ -20,6 +20,39 @@ class Operations(object):
         mnorm2d = np.ma.masked_less(center_data, threshold)
         com = ndimage.measurements.center_of_mass(mnorm2d)
         com = [float(i) for i in com]
+        com = ndimage.measurements.center_of_mass(center_data)
+        com = [float(i) for i in com]
+        return com
+
+    @staticmethod
+    def calculate_sensitivity(flood_data, min_sensitivity, max_sensitivity):
+        if min_sensitivity is None and max_sensitivity is None:
+                num_pixels = flood_data.shape[0]*flood_data.shape[1]
+                efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
+        else:
+            flood_data = np.ma.masked_outside(flood_data, min_sensitivity,
+                                             max_sensitivity)
+            num_pixels = flood_data.shape[0]*flood_data.shape[1]
+            efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
+        return efficiency
+
+    @staticmethod
+    def correct_for_sensitivity(sample, flood_data, dark_current, min_sensitivity, max_sensitivity):
+        if dark_current is not None:
+            sample = sample - dark_current
+            flood_data = flood_data - dark_current
+        sensitivity = np.array(Operations.calculate_sensitivity(flood_data, min_sensitivity, max_sensitivity))
+        new_sample = sample / sensitivity
+        return new_sample
+
+    @staticmethod
+    def max_com(center_data):
+        # finds center of mass by searching for the maximum position
+        com = np.unravel_index(center_data.argmax(), center_data.shape)
+        # com = np.unravel_index(center_data.values.argmax(), center_data.values.shape)
+        # com_x = center_data.coords['x'].values[com[1]]
+        # com_y = center_data.coords['y'].values[com[0]]
+        # return com_x, com_y
         return com
 
     @staticmethod
@@ -43,6 +76,7 @@ class Operations(object):
         center_y = center_data.coords['y'].values[int((popt[2]))] + y_diff
 
         return center_x, center_y, popt[1]*pixel_size_x, popt[2]*pixel_size_y
+
     @staticmethod
     def integrate(size, center, data):  # Does the radial integration
         # derived from http://stackoverflow.com/questions/21242011/most-efficient-way-to-calculate-radial-profile

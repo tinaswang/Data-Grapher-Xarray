@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import plotly.offline as py
 import plotly.graph_objs as go
 import xarray as xr
-
+from scipy import ndimage
+import time
 
 class Data(object):
     def __init__(self, data_file, center_file=None, background_file=None):
@@ -88,16 +89,54 @@ class Data(object):
                             self.size[1], self.translation),
                            center=(self.center[0], self.center[1]))
 
+    @staticmethod
+    def sensitivity(flood_field_file, sample, dark_curr_file):
+        p_flood = Parser(flood_field_file)
+        flood_data = np.rot90(Data.get_data(p_flood)[0].values)
+        flood_data = np.log(flood_data)
+
+        p_sample = Parser(sample)
+        sample  = np.rot90(Data.get_data(p_sample)[0].values)
+
+        p_dark = Parser(dark_curr_file)
+        dark_current = np.rot90(Data.get_data(p_dark)[0].values)
+
+        sensitivity = np.array(Operations.calculate_sensitivity(flood_data, min_sensitivity=0.5, max_sensitivity=1.5))
+        sensitivity = np.log(sensitivity)
+        new_sample = Operations.correct_for_sensitivity(sample=sample,flood_data=flood_data, dark_current=dark_current, min_sensitivity=0.5,max_sensitivity=1.5)
+        new_sample = np.log(np.array(new_sample))
+        fig = plt.figure(figsize = (20, 15))
+        ax1 = fig.add_subplot(221)
+        im = ax1.imshow(flood_data)
+        fig.colorbar(im)
+        ax1 = fig.add_subplot(222)
+        im4 = ax1.imshow(np.log(sample))
+        fig.colorbar(im4)
+        ax2 = fig.add_subplot(223)
+        im2 = ax2.imshow(sensitivity)
+        fig.colorbar(im2)
+        ax3 = fig.add_subplot(224)
+        im3 = ax3.imshow(new_sample)
+        fig.colorbar(im3)
+        plt.show()
+
+        return new_sample
 
 def main():
     d2 = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0001_0001.xml",
              center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0000_0001.xml")
-    d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0185_0001.xml",
-             center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0185_0001.xml")
+    # d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0229_0001.xml",
+    #          center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0185_0001.xml")
+    d = Data(data_file="C:/Users/tsy/Documents/GitHub/Reducer/Data Examples/HiResSANS_exp9_scan0030_0001.xml",
+         center_file="C:/Users/tsy/Documents/GitHub/Reducer/Data Examples/HiResSANS_exp9_scan0006_0001.xml",
+        background_file="C:/Users/tsy/Documents/GitHub/Reducer/Data Examples/HiResSANS_exp9_scan0038_0001.xml")
     d.setup()
     # d.display()
-    d.display2d()
+    # d.display2d()
 
+    result = Data.sensitivity(flood_field_file="Data Examples/BioSANS_exp318_scan0034_0001.xml",
+                     sample = "Data Examples/BioSANS_exp318_scan0229_0001.xml",
+                     dark_curr_file = "Data Examples/BioSANS_exp318_scan0009_0001.xml")
 
 if __name__ == "__main__":
     main()
