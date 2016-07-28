@@ -64,7 +64,7 @@ d = Data(data_file="Data Examples/BioSANS_exp253_scan0015_0001.xml",
         center_file="Data Examples/BioSANS_exp253_scan0010_0001.xml",
         background_file="Data Examples/BioSANS_exp253_scan0011_0001.xml")
 d.setup()
-profile = radial_profile(data=d.subtracted_data, center=(center_x, center_y))
-radi = np.linspace(0, 3*profile.shape[0] -1, profile.shape[0])
-plt.plot(radi, profile)
-plt.show()
+# profile = radial_profile(data=d.subtracted_data, center=(center_x, center_y))
+# radi = np.linspace(0, 3*profile.shape[0] -1, profile.shape[0])
+# plt.plot(radi, profile)
+# plt.show()

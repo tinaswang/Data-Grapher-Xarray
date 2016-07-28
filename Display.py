@@ -3,7 +3,7 @@ import plotly.offline as py
 import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 import xarray as xr
-
+from scipy import ndimage
 
 class Display(object):
 
@@ -18,10 +18,10 @@ class Display(object):
         pixel_size_x, pixel_size_y, translation = parameters
         x_units_centered = data.coords['x'].values
         y_units_centered = data.coords['y'].values
-        X = x_units_centered
-        Y = y_units_centered
-
+        X = y_units_centered
+        Y = x_units_centered
         graph_data = [go.Heatmap(z=np.array(data.values), x=X, y=Y)]
+        # Contour Graph:
         # graph_data = [go.Contour(z=np.array(data.values), x=X, y=Y, line=dict(smoothing=0))]
         layout = go.Layout(
          xaxis=dict(title="Milimeters"),
@@ -55,14 +55,13 @@ class Display(object):
                  )
              ]
          )
-        fig = go.Figure(data=graph_data)
-        # fig = go.Figure(data=graph_data, layout=layout)
+        fig = go.Figure(data=graph_data, layout=layout)
         py.plot(fig)
 
         # Below: matplotlib version
         # plt.imshow(data.values, interpolation = 'none', origin = "lower",
         #            extent=[X[0], X[-1], Y[0], Y[-1]])
-        # plt.scatter(center[0], center[1], color = "white", s = 100)
+        # plt.scatter(center[0], center[1]/pixel_size_y, color = "white", s = 100)
         # plt.show()
 
     @staticmethod

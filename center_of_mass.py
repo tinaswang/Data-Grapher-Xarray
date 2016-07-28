@@ -3,6 +3,7 @@ from scipy import ndimage
 from Data import Data
 import xarray as xr
 from numba import jit
+import matplotlib.pyplot as plt
 
 def get_center_of_mass(d):
     d.setup()
@@ -23,7 +24,10 @@ def get_center_of_mass(d):
     # com = ndimage.center_of_mass(data)
     # point = (x_units_centered[int(com[1])]/pixel_size_x, y_units_centered[int(com[0])]/pixel_size_y)
     # print(point)
+    plt.imshow(data)
+    plt.scatter(p_new[0]/pixel_size_x, (p_new[1])/pixel_size_y, color = 'w', s = 50)
     print(p_new[0]/pixel_size_x, (p_new[1])/pixel_size_y)
+    plt.show()
     # print(point)
 
 @jit(nopython=True)
@@ -53,8 +57,8 @@ def main():
     # d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0030_0001.xml",
     #          center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0006_0001.xml",
     #          background_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/HiResSANS_exp9_scan0038_0001.xml")
-    d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0000_0001.xml",
-             center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0000_0001.xml")
+    d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0229_0001.xml",
+             center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0229_0001.xml")
     get_center_of_mass(d)
 if __name__ == "__main__":
     main()

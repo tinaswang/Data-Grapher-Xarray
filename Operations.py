@@ -18,24 +18,35 @@ class Operations(object):
         hist, bins = np.histogram(center_data.ravel(), normed=False, bins=49000)
         threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
         mnorm2d = np.ma.masked_less(center_data, threshold)
-        com = ndimage.measurements.center_of_mass(mnorm2d)
-        com = [float(i) for i in com]
         com = ndimage.measurements.center_of_mass(center_data)
         com = [float(i) for i in com]
         return com
 
+
     @staticmethod
     def calculate_sensitivity(flood_data, min_sensitivity, max_sensitivity):
-        if min_sensitivity is None and max_sensitivity is None:
-                num_pixels = flood_data.shape[0]*flood_data.shape[1]
-                efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
-        else:
-            flood_data = np.ma.masked_outside(flood_data, min_sensitivity,
-                                             max_sensitivity)
-            num_pixels = flood_data.shape[0]*flood_data.shape[1]
-            efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
-        return efficiency
+        num_pixels = flood_data.shape[0]*flood_data.shape[1] - np.ma.count_masked(flood_data)
 
+        efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
+
+        try:
+            efficiency = np.nan_to_num(efficiency)
+            flood_mask = flood_data.mask
+            for i in range(len(flood_data)):
+                for j in range(len(flood_data[i])):
+                    if efficiency[i][j] < min_sensitivity:
+                        flood_mask[i][j] = True
+                    elif efficiency[i][j] > max_sensitivity:
+                        flood_mask[i][j] = True
+            # e_masked = np.ma.masked_outside(np.nan_to_num(efficiency), min_sensitivity,
+                                        # max_sensitivity)
+            flood_data = np.ma.masked_array(flood_data, flood_mask)
+            shape_x = flood_data.compressed().size
+            num_pixels = shape_x
+            eff_2 = flood_data/((1/num_pixels)*np.sum(flood_data))
+            return eff_2
+        except:
+            return efficiency
     @staticmethod
     def correct_for_sensitivity(sample, flood_data, dark_current, min_sensitivity, max_sensitivity):
         if dark_current is not None:
@@ -58,6 +69,7 @@ class Operations(object):
     @staticmethod
     def find_center(center_data, size, translation):
         # finds the actual center of mass via Gaussian fitting
+
         data = center_data.values
         pixel_size_x, pixel_size_y = size
         x = np.linspace(0, 255, 256)
@@ -68,13 +80,11 @@ class Operations(object):
         com = Operations.get_com(data)
         initial_guess = (300,com[1],com[0],4,4,0,0)
         popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y), data.ravel(), p0 = initial_guess)
-
-
-        x_diff = (popt[1] - int(round(popt[1])))*pixel_size_x
-        y_diff = (popt[2] - int(round(popt[2])))* pixel_size_y + translation
-        center_x = center_data.coords['x'].values[int(round(popt[1]))] + x_diff
-        center_y = center_data.coords['y'].values[int((popt[2]))] + y_diff
-
+        fit = Operations.twoD_Gaussian((x,y), *popt)
+        x_diff = (popt[1] - int(round(popt[1])))*pixel_size_y
+        y_diff = (popt[2] - int(round(popt[2])))* pixel_size_x
+        center_x = center_data.coords['y'].values[int(round(popt[1]))] + x_diff
+        center_y = center_data.coords['x'].values[int(round(popt[2]))] + y_diff
         return center_x, center_y, popt[1]*pixel_size_x, popt[2]*pixel_size_y
 
     @staticmethod
@@ -99,10 +109,11 @@ class Operations(object):
         pixel_size in mm
         get default units with center as center of the images
         """
-        i_center = data_shape[1]/2
-        j_center = data_shape[0]/2
-        x_axis_units = (np.arange(data_shape[1])-i_center) * pixel_size[1]
-        y_axis_units = (np.arange(data_shape[0])-j_center) * pixel_size[0]
+        i_center = data_shape[0]/2
+        j_center = data_shape[1]/2
+
+        x_axis_units = (np.arange(data_shape[0])-i_center) * pixel_size[0]
+        y_axis_units = (np.arange(data_shape[1])-j_center) * pixel_size[1]
         return x_axis_units, y_axis_units
 
     @staticmethod
