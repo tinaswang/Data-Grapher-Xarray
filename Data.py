@@ -2,13 +2,8 @@ from Parser import Parser
 from Operations import Operations
 from Display import Display
 import numpy as np
-import matplotlib.pyplot as plt
-import plotly.offline as py
-import plotly.graph_objs as go
 import xarray as xr
-from scipy import ndimage
-import scipy.stats as stats
-import win32api
+import matplotlib.pyplt as matplotlib
 
 class Data(object):
     def __init__(self, data_file, center_file=None, background_file=None):
@@ -30,8 +25,7 @@ class Data(object):
         x_axis_units, y_axis_units = Operations.get_axes_units(data_shape=detector_data.shape,
                                                                        pixel_size=[pixel_size_x, pixel_size_y])
         y_axis_units = y_axis_units + translation
-        return (detector_data, pixel_size_x, pixel_size_y,
-                translation)
+        return (detector_data, pixel_size_x, pixel_size_y, translation)
 
     def setup(self):  # sets up the data for the three files
         p_data = Parser(self.data_f)
@@ -86,13 +80,9 @@ class Data(object):
             Display.plot2d(data=self.center_data, parameters=(self.size[0],
                             self.size[1], self.translation),
                            center=self.center)
-    def xarray_plot(self):
 
-        x = np.arange(256)
-        y = np.arange(192)
-
-        data = xr.DataArray(self.data.values, coords=[x, y],
-                                     dims=['x', 'y'] )
+    def xarray_plot(self):  # Demonstration code for the presentation
+        data = xr.DataArray(self.data.values, dims=['x', 'y'] )
         beam_center = self.center_data
         beam_center.plot()
         # (0,0) away from the beam center
@@ -109,6 +99,7 @@ class Data(object):
     def sensitivity(p_flood, p_sample, p_dark):
         flood_data = Data.get_data(p_flood)[0]
         flood_data = np.array(Data.get_data(p_flood)[0].values)
+
         masked_cols = np.arange(105, flood_data.shape[1])
         mask = np.zeros_like(flood_data)
         mask[:,masked_cols] = 1
@@ -131,12 +122,7 @@ class Data(object):
 
         new_sample = np.log(np.array(new_sample))
         new_sample = np.ma.masked_array(new_sample, mask)
-
-        translation = Data.get_data(p_sample)[3]
-
-
         flood_data = np.ma.masked_array(flood_data, mask)
-
 
         fig = plt.figure(figsize = (20, 15))
         ax1 = fig.add_subplot(221)
@@ -144,22 +130,24 @@ class Data(object):
         fig.colorbar(im)
         ax1.set_title("Flood Data")
         ax2 = fig.add_subplot(222)
-        im4 = ax2.imshow(np.log(sample_data))
-        fig.colorbar(im4)
+        im2 = ax2.imshow(np.log(sample_data))
+        fig.colorbar(im2)
         ax2.set_title("Sample Data")
         ax3 = fig.add_subplot(223)
-        im2 = ax3.imshow(sensitivity)
-        fig.colorbar(im2)
+        im3 = ax3.imshow(sensitivity)
+        fig.colorbar(im3)
         ax3.set_title("Sensitivity")
         ax4 = fig.add_subplot(224)
-        im3 = ax4.imshow(new_sample)
+        im4 = ax4.imshow(new_sample)
         ax4.set_title("Sensitivity Correction")
-        fig.colorbar(im3)
+        fig.colorbar(im4)
         plt.figure()
         plt.plot(new_sample.sum(axis=1))
         plt.figure()
         plt.plot(np.log(sample_data).sum(axis=1))
         plt.show()
+
+        return new_sample
 
 
 def main():
@@ -167,26 +155,20 @@ def main():
     #          center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp275_scan0000_0001.xml")
     d = Data(data_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0229_0001.xml",
              center_file="C:/Users/tsy/Documents/GitHub/Data-Grapher-Xarray/Data Examples/BioSANS_exp318_scan0229_0001.xml")
-    # d = Data(data_file="Data Examples/BioSANS_exp253_scan0015_0001.xml",
-    #         center_file="Data Examples/BioSANS_exp253_scan0010_0001.xml",
-    #         background_file="Data Examples/BioSANS_exp253_scan0011_0001.xml")
-
     d2 = Data(data_file="C:/Users/tsy/Documents/GitHub/Reducer/Data Examples/HiResSANS_exp9_scan0030_0001.xml",
          center_file="C:/Users/tsy/Documents/GitHub/Reducer/Data Examples/HiResSANS_exp9_scan0006_0001.xml",
         background_file="C:/Users/tsy/Documents/GitHub/Reducer/Data Examples/HiResSANS_exp9_scan0038_0001.xml")
     d.setup()
     # d.xarray_plot()
     # d.display()
-    d.display2d()
-
+    # d.display2d()
 
     p_flood = Parser("Data Examples/BioSANS_exp318_scan0008_0001.xml")
-    # p_flood = Parser("Data Examples/BioSANS_exp318_scan0034_0001.xml")
     p_sample = Parser("Data Examples/BioSANS_exp318_scan0229_0001.xml")
     p_dark = Parser("Data Examples/BioSANS_exp318_scan0009_0001.xml")
-    # Data.sensitivity(p_flood=p_flood,
-    #                  p_sample = p_sample,
-    #                 p_dark = p_dark)
+    Data.sensitivity(p_flood=p_flood,
+                     p_sample = p_sample,
+                    p_dark = p_dark)
 
 if __name__ == "__main__":
     main()

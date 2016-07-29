@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.ndimage as ndimage
-import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import scipy.stats as stats
@@ -10,18 +9,6 @@ class Operations(object):
 
     def __init__(self):
         pass
-
-    @staticmethod
-    def get_com(center_data):
-        # derived from http://stackoverflow.com/questions/18435003/ndimages-center-of-mass-to-calculate-the-position-of-a-gaussian-peak
-        # gets a guess for the center of mass
-        hist, bins = np.histogram(center_data.ravel(), normed=False, bins=49000)
-        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
-        mnorm2d = np.ma.masked_less(center_data, threshold)
-        com = ndimage.measurements.center_of_mass(center_data)
-        com = [float(i) for i in com]
-        return com
-
 
     @staticmethod
     def calculate_sensitivity(flood_data, min_sensitivity, max_sensitivity):
@@ -38,15 +25,13 @@ class Operations(object):
                         flood_mask[i][j] = True
                     elif efficiency[i][j] > max_sensitivity:
                         flood_mask[i][j] = True
-            # e_masked = np.ma.masked_outside(np.nan_to_num(efficiency), min_sensitivity,
-                                        # max_sensitivity)
             flood_data = np.ma.masked_array(flood_data, flood_mask)
-            shape_x = flood_data.compressed().size
-            num_pixels = shape_x
+            num_pixels = flood_data.compressed().size
             eff_2 = flood_data/((1/num_pixels)*np.sum(flood_data))
             return eff_2
         except:
             return efficiency
+
     @staticmethod
     def correct_for_sensitivity(sample, flood_data, dark_current, min_sensitivity, max_sensitivity):
         if dark_current is not None:
@@ -57,19 +42,19 @@ class Operations(object):
         return new_sample
 
     @staticmethod
-    def max_com(center_data):
-        # finds center of mass by searching for the maximum position
-        com = np.unravel_index(center_data.argmax(), center_data.shape)
-        # com = np.unravel_index(center_data.values.argmax(), center_data.values.shape)
-        # com_x = center_data.coords['x'].values[com[1]]
-        # com_y = center_data.coords['y'].values[com[0]]
-        # return com_x, com_y
+    def get_com(center_data):
+        # derived from http://stackoverflow.com/questions/18435003/ndimages-center-of-mass-to-calculate-the-position-of-a-gaussian-peak
+        # gets a guess for the center of mass
+        hist, bins = np.histogram(center_data.ravel(), normed=False, bins=49000)
+        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
+        mnorm2d = np.ma.masked_less(center_data, threshold)
+        com = ndimage.measurements.center_of_mass(center_data)
+        com = [float(i) for i in com]
         return com
 
     @staticmethod
     def find_center(center_data, size, translation):
         # finds the actual center of mass via Gaussian fitting
-
         data = center_data.values
         pixel_size_x, pixel_size_y = size
         x = np.linspace(0, 255, 256)
@@ -111,7 +96,6 @@ class Operations(object):
         """
         i_center = data_shape[0]/2
         j_center = data_shape[1]/2
-
         x_axis_units = (np.arange(data_shape[0])-i_center) * pixel_size[0]
         y_axis_units = (np.arange(data_shape[1])-j_center) * pixel_size[1]
         return x_axis_units, y_axis_units
@@ -135,7 +119,10 @@ class Operations(object):
         padded = pad_value * np.ones(2 * [max(m.shape)], dtype=m.dtype)
         padded[0:m.shape[0], 0:m.shape[1]] = m
         return padded
+
+
 def main():
     pass
+
 if __name__ == "__main__":
     main()

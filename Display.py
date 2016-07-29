@@ -3,7 +3,6 @@ import plotly.offline as py
 import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 import xarray as xr
-from scipy import ndimage
 
 class Display(object):
 
@@ -13,8 +12,6 @@ class Display(object):
     @staticmethod
     def plot2d(parameters, data, center):
         # makes a 2d plotly graph of the data
-        # Will not graph the correct center if data is rotated 90 degrees
-        # because of repositioned axes
         pixel_size_x, pixel_size_y, translation = parameters
         x_units_centered = data.coords['x'].values
         y_units_centered = data.coords['y'].values
@@ -59,9 +56,11 @@ class Display(object):
         py.plot(fig)
 
         # Below: matplotlib version
-        # plt.imshow(data.values, interpolation = 'none', origin = "lower",
+        # plt.imshow(data.values, interpolation = 'none', origin = "lower")
         #            extent=[X[0], X[-1], Y[0], Y[-1]])
-        # plt.scatter(center[0], center[1]/pixel_size_y, color = "white", s = 100)
+        # plt.scatter(center[0], center[1], color = "white", s = 100)
+        # plt.set_xlabel("Milimeters")
+        # plt.set_ylabel("Milimeters")
         # plt.show()
 
     @staticmethod
@@ -85,6 +84,11 @@ class Display(object):
         fig = go.Figure(data=graph_data, layout=layout)
         py.plot(fig)
 
+        # Below: matplotlib version
+        # plt.plot(length, profile)
+        # plt.set_xlabel("Angle")
+        # plt.set_ylabel("Intensity")
+        # plt.show()
 
 def main():
     pass
