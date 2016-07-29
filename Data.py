@@ -3,7 +3,7 @@ from Operations import Operations
 from Display import Display
 import numpy as np
 import xarray as xr
-import matplotlib.pyplt as matplotlib
+import matplotlib.pyplot as plt
 
 class Data(object):
     def __init__(self, data_file, center_file=None, background_file=None):
@@ -98,16 +98,16 @@ class Data(object):
     @staticmethod
     def sensitivity(p_flood, p_sample, p_dark):
         flood_data = Data.get_data(p_flood)[0]
-        flood_data = np.array(Data.get_data(p_flood)[0].values)
+        flood_data = np.array(Data.get_data(p_flood)[0])
 
         masked_cols = np.arange(105, flood_data.shape[1])
         mask = np.zeros_like(flood_data)
         mask[:,masked_cols] = 1
 
-        sample_data = np.array(Data.get_data(p_sample)[0].values)
+        sample_data = np.array(Data.get_data(p_sample)[0])
         sample_data = np.ma.masked_array(sample_data, mask)
 
-        dark_current = np.array(Data.get_data(p_dark)[0].values)
+        dark_current = np.array(Data.get_data(p_dark)[0])
         dark_current = np.ma.masked_array(dark_current, mask)
 
         sensitivity = np.array(Operations.calculate_sensitivity(flood_data, min_sensitivity=0.5, max_sensitivity=1.5))

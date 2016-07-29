@@ -13,9 +13,7 @@ class Operations(object):
     @staticmethod
     def calculate_sensitivity(flood_data, min_sensitivity, max_sensitivity):
         num_pixels = flood_data.shape[0]*flood_data.shape[1] - np.ma.count_masked(flood_data)
-
         efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
-
         try:
             efficiency = np.nan_to_num(efficiency)
             flood_mask = flood_data.mask
@@ -63,7 +61,7 @@ class Operations(object):
 
         data =  Operations.pad_to_square(data)
         com = Operations.get_com(data)
-        initial_guess = (300,com[1],com[0],4,4,0,0)
+        initial_guess = (500,com[1],com[0],4,4,0,0)
         popt, pcov = opt.curve_fit(Operations.twoD_Gaussian, (x, y), data.ravel(), p0 = initial_guess)
         fit = Operations.twoD_Gaussian((x,y), *popt)
         x_diff = (popt[1] - int(round(popt[1])))*pixel_size_y
