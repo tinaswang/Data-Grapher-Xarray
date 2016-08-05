@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 import xarray as xr
 
+
 class Display(object):
 
     def __init__(self):
@@ -19,7 +20,8 @@ class Display(object):
         Y = x_units_centered
         graph_data = [go.Heatmap(z=np.array(data.values), x=X, y=Y)]
         # Contour Graph:
-        # graph_data = [go.Contour(z=np.array(data.values), x=X, y=Y, line=dict(smoothing=0))]
+        # graph_data = [go.Contour(z=np.array(data.values),
+        # x=X, y=Y, line=dict(smoothing=0))]
         layout = go.Layout(
          xaxis=dict(title="Milimeters"),
          yaxis=dict(title="Milimeters"),
@@ -70,8 +72,8 @@ class Display(object):
         length = np.linspace(0, (pixel_size_x*profile.shape[0])/10.0**4.0,
                              profile.shape[0])
         trace = go.Scatter(
-            x=length,
-            y=profile,
+            x=(length),
+            y=(profile),
             mode='lines'
             )
 
@@ -89,6 +91,7 @@ class Display(object):
         # plt.set_xlabel("Angle")
         # plt.set_ylabel("Intensity")
         # plt.show()
+
 
 def main():
     pass
