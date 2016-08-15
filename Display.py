@@ -58,7 +58,7 @@ class Display(object):
         py.plot(fig)
 
         # Below: matplotlib version
-        # plt.imshow(data.values, interpolation = 'none', origin = "lower")
+        # plt.imshow(data.values, interpolation = 'none', origin = "lower",
         #            extent=[X[0], X[-1], Y[0], Y[-1]])
         # plt.scatter(center[0], center[1], color = "white", s = 100)
         # plt.set_xlabel("Milimeters")

@@ -75,11 +75,11 @@ class Operations(object):
         center-of-mass-to-calculate-the-position-of-a-gaussian-peak
         gets a guess for the center of mass
         """
-        hist, bins = np.histogram(center_data.ravel(),
-                                  normed=False,
-                                  bins=49000)
-        threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
-        mnorm2d = np.ma.masked_less(center_data, threshold)
+        # hist, bins = np.histogram(center_data.ravel(),
+        #                           normed=False,
+        #                           bins=49000)
+        # threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
+        # mnorm2d = np.ma.masked_less(center_data, threshold)
         com = ndimage.measurements.center_of_mass(center_data)
         com = [float(i) for i in com]
         return com

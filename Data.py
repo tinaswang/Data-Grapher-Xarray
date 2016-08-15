@@ -4,6 +4,7 @@ from Display import Display
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 class Data(object):
@@ -23,42 +24,56 @@ class Data(object):
         pixel_size_x = p.xpath_get("/SPICErack/Header/x_mm_per_pixel/#text")
         pixel_size_y = p.xpath_get("/SPICErack/Header/y_mm_per_pixel/#text")
         translation = p.xpath_get("/SPICErack/Motor_Positions/detector_trans/#text")
-        detector_wing = p.xpath_get("/SPICErack/Data/DetectorWing/data")
-
+        # detector_wing = p.xpath_get("/SPICErack/Data/DetectorWing/data")
         return (detector_data, pixel_size_x, pixel_size_y, translation)
+        # , detector_wing)
 
     def setup(self):
         """
         sets up the data for the three files
         """
-        p_data = Parser(self.data_f)
-        self.data = xr.DataArray(Data.get_data(p_data)[0], dims=["x", "y"])
+        self.p_data = Parser(self.data_f)
+        self.data = xr.DataArray(Data.get_data(self.p_data)[0], dims=["x", "y"])
+        # x_axis_units, y_axis_units = Operations.get_axes_units(data_shape=self.detector_wing.shape,
+        #                                                         pixel_size=[pixel_size_x, pixel_size_y])
+        # self.detector_wing = xr.DataArray(Data.get_data(self.p_data)[4],
+        #                                   coords=[y_axis_units, x_axis_units],
+        #                                   dims=["y", "x"])
+        # self.wing_center = Operations.find_center(self.detector_wing,
+        #                                           self.size, self.translation)
 
         p_center = Parser(self.center_f)
-        pixel_size_x = Data.get_data(p_center)[1]
-        pixel_size_y = Data.get_data(p_center)[2]
-        self.size = (pixel_size_x, pixel_size_y)
+        size_x = Data.get_data(p_center)[1]
+        size_y = Data.get_data(p_center)[2]
+        self.size = (size_x, size_y)
         self.translation = Data.get_data(p_center)[3]
 
         self.center_data = Data.get_data(p_center)[0]
-        x_axis_units, y_axis_units = Operations.get_axes_units(data_shape=self.data.values.shape,
-                                                               pixel_size=[pixel_size_x, pixel_size_y])
+        x_axis_units, y_axis_units = Operations.get_axes_units(
+                                            data_shape=self.data.values.shape,
+                                            pixel_size=[size_x, size_y])
 
         y_axis_units = y_axis_units + self.translation
-        self.center_data = xr.DataArray(self.center_data,
-                                        coords=[x_axis_units, y_axis_units],
-                                        dims=['x', 'y'])
+        self.center_data = xr.DataArray(
+                                    self.center_data,
+                                    coords=[x_axis_units, y_axis_units],
+                                    dims=['x', 'y'])
         self.center = Operations.find_center(self.center_data, self.size,
-                                             self.translation)
+                                                 self.translation)
         self.data.x.values = self.center_data.x.values
         self.data.y.values = self.center_data.y.values
+
+            # self.wing_center = Operations.find_center(self.detector_wing,
+            #                                           self.size,
+            #                                           self.translation)
+
 
         try:
             p_backgrd = Parser(self.backgrd_f)
             self.backgrd_data = xr.DataArray(Data.get_data(p_backgrd)[0],
                                              dims=['x', 'y'])
-            self.backgrd_data.x.values = self.data.x.values
             self.backgrd_data.y.values = self.data.y.values
+            self.backgrd_data.x.values = self.data.x.values
             self.subtracted_data = self.data - self.backgrd_data
         except:
             pass
@@ -96,8 +111,9 @@ class Data(object):
 
     def solid_angle(self):
         try:
-            correct = Operations.solid_angle_correction(center=self.center,
-                                                        data=self.subtracted_data)
+            correct = Operations.solid_angle_correction(
+                        center=self.center,
+                        data=self.subtracted_data)
         except:
             correct = Operations.solid_angle_correction(center=self.center,
                                                         data=self.data)
@@ -167,10 +183,10 @@ def main():
          center_file="C:/Users/tsy/Documents/GitHub/Data_Grapher/Data Examples/HiResSANS_exp9_scan0006_0001.xml",
         background_file="C:/Users/tsy/Documents/GitHub/Data_Grapher/Data Examples/HiResSANS_exp9_scan0038_0001.xml")
     d.setup()
-    d.solid_angle()
+    # d.solid_angle()
     # d.xarray_plot()
     # d.display()
-    # d.display2d()
+    d.display2d()
 
     p_flood = Parser("Data Examples/BioSANS_exp318_scan0008_0001.xml")
     p_sample = Parser("Data Examples/BioSANS_exp318_scan0229_0001.xml")
