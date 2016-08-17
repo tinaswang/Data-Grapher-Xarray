@@ -28,9 +28,6 @@ class DataConfig(object):
         data_list = DataConfig.iterate_dict(config_data, p, data_dict)
         return data_list
 
-    # for key,val in d.items():
-    #    exec(key + '=val')
-    # turn key/value into variables
     @staticmethod
     def iterate_dict(d, p, data_dict):
         for key, value in d.items():
@@ -55,6 +52,13 @@ class DataConfig(object):
         self.size = size_x, size_y
         try:
             self.detector_wing = xr.DataArray(np.rot90(d_values["detector_wing"]), dims=['x', 'y'])
+            x_wing, y_wing = Operations.get_axes_units(
+                                    data_shape=self.detector_wing.shape,
+                                    pixel_size=[size_y, size_x])
+            self.detector_wing.x.values = x_wing
+            self.detector_wing.y.values = y_wing
+            self.radius = d_values.get("radius")
+            self.shift = d_values.get("rotation")
         except:
             pass
 
@@ -165,7 +169,7 @@ class DataConfig(object):
 
         return new_sample
 
-    def __setup_df(self, data, size, z=10, name="Detector"):
+    def __setup_df(self, data, size, z=10, name="Detector1", wing=False):
         size_x = data.shape[1]
         size_y = data.shape[0]
         dim_x = size[0]
@@ -178,19 +182,27 @@ class DataConfig(object):
 
         xv = data.x.values
         yv = data.y.values
-        xv, yv = np.meshgrid(xv, yv)
+        yv, xv = np.meshgrid(yv, xv)
         xv = xv.ravel()
         yv = yv.ravel()
 
         zv = np.full_like(xv, z)
-        cos_theta = (((offset_x**2 + offset_y**2 + z**2)**(1/2)) /
-                     ((xv**2 + yv**2 + zv**2)**(1/2)))
-        theta = np.arccos(cos_theta)
-
+        if wing is False:
+            v = np.stack((xv, yv, zv), axis=-1)
+            u = np.stack((np.full_like(xv, offset_x),
+                          np.full_like(xv, offset_y), zv), axis=-1)
+            theta = np.arccos(np.sum(u*v, axis=1)/(np.linalg.norm(u, axis=1) * np.linalg.norm(v, axis=1)))
+        else:
+            biosans_tube_step_meters = dim_x/1000
+            radius = 1.13
+            tube_step_angle_radians = np.arcsin(biosans_tube_step_meters/radius)
+            tube_step_angle_degrees = np.degrees(tube_step_angle_radians)
+            theta = [-tube_step_angle_degrees * x for x in range(160)]
+            theta = np.repeat(np.array(theta), data.shape[0])
         name = ([name] * (size_x * size_y))
 
         # Concatenate all of them
-        allv = np.column_stack((name, iv, jv, yv, xv, zv, theta))
+        allv = np.column_stack((name, iv, jv, xv/1000, yv/1000, zv/10000, theta))
         df = pd.DataFrame(data=allv,
                           columns=['name', 'i', 'j', 'x', 'y', 'z', 'theta'])
         df.set_index(['name', 'i', 'j'], inplace=True)
@@ -199,20 +211,19 @@ class DataConfig(object):
     def make_df(self, add_wing=False, z=10):
         df = self.__setup_df(self.data, self.size, z=10)
         if add_wing is True:
-            df2 = self.__setup_df(self.detector_wing, self.size,
-                                  z, name="Detector Wing")
-            df.append(df2, ignore_index=True)
-        return df
+            df2 = self.__setup_df(data=self.detector_wing, size=self.size,
+                                  name="Detector Wing", wing=True)
+            df = df.append(df2)
+        return df2
 
 
 def main():
     d = DataConfig(
-             config="Data Examples/config.json",
-             data_file="Data Examples/BioSANS_exp275_scan0001_0001.xml",
-             center_file="Data Examples/BioSANS_exp275_scan0000_0001.xml")
+            config="Data Examples/config.json",
+            data_file="Data Examples/BioSANS_exp318_scan0229_0001.xml",
+            center_file="Data Examples/BioSANS_exp318_scan0008_0001.xml")
     d.setup()
-    df = d.make_df()
-    print(df)
+    df = d.make_df(add_wing=True)
     # d.solid_angle()
     # d.display()
     # d.display2d()

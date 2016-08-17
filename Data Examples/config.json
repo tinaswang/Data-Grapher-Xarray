@@ -5,7 +5,7 @@
     "pixel_size_y": "/SPICErack/Header/y_mm_per_pixel/#text",
     "translation": "/SPICErack/Motor_Positions/detector_trans/#text",
     "detector_wing": "/SPICErack/Data/DetectorWing/data",
-    "distance_1" : "/SPICErack/Motor_Positions/sample_det_dist/#text",
-    "distance_2" : "/SPICErack/Header/sample_to_flange/#text"
+    "rotation" : "/SPICErack/Motor_Positions/det_west_wing_rot/#text",
+    "radius" : "/SPICErack/Header/west_wing_det_radius_m/#text"
   }
 }

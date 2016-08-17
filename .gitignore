@@ -78,6 +78,9 @@ var/
 *.manifest
 *.spec
 
+# IPython Notebook
+.ipynb_checkpoints
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
