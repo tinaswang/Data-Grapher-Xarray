@@ -129,10 +129,10 @@ class Operations(object):
         pixel_size in mm
         get default units with center as center of the images
         """
-        i_center = data_shape[0]/2
-        j_center = data_shape[1]/2
-        x_axis_units = (np.arange(data_shape[0])-i_center) * pixel_size[0]
-        y_axis_units = (np.arange(data_shape[1])-j_center) * pixel_size[1]
+        i_center = data_shape[1]/2
+        j_center = data_shape[0]/2
+        x_axis_units = (np.arange(data_shape[1])-i_center) * pixel_size[1]
+        y_axis_units = (np.arange(data_shape[0])-j_center) * pixel_size[0]
         return x_axis_units, y_axis_units
 
     @staticmethod

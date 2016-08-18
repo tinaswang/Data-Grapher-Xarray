@@ -45,18 +45,20 @@ class DataConfig(object):
         d_values = DataConfig.get_data(p_data, self.config)
 
         self.data = xr.DataArray(np.rot90(d_values['detector_data']),
-                                 dims=['x', 'y'])
+                                 dims=['y', 'x'])
 
         size_x = d_values.get("pixel_size_x")
         size_y = d_values.get("pixel_size_y")
         self.size = size_x, size_y
         try:
-            self.detector_wing = xr.DataArray(np.rot90(d_values["detector_wing"]), dims=['x', 'y'])
+            self.detector_wing = xr.DataArray(np.rot90(d_values["detector_wing"]), dims=['y', 'x'])
             x_wing, y_wing = Operations.get_axes_units(
                                     data_shape=self.detector_wing.shape,
                                     pixel_size=[size_y, size_x])
-            self.detector_wing.x.values = x_wing
+
             self.detector_wing.y.values = y_wing
+            self.detector_wing.x.values = x_wing
+
             self.radius = d_values.get("radius")
             self.shift = d_values.get("rotation")
         except:
@@ -70,13 +72,13 @@ class DataConfig(object):
             self.translation = center_values.get("translation")
             x_axis_units, y_axis_units = Operations.get_axes_units(
                                             data_shape=self.data.values.shape,
-                                            pixel_size=[size_x, size_y])
+                                            pixel_size=[size_y, size_x])
 
             y_axis_units = y_axis_units + self.translation
             self.center_data = xr.DataArray(
                                     self.center_data,
-                                    coords=[x_axis_units, y_axis_units],
-                                    dims=['x', 'y'])
+                                    coords=[y_axis_units, x_axis_units],
+                                    dims=['y', 'x'])
             self.center = Operations.find_center(self.center_data, self.size,
                                                  self.translation)
             self.data.x.values = self.center_data.x.values
@@ -89,7 +91,7 @@ class DataConfig(object):
             self.p_backgrd = Parser(self.backgrd_f)
             b_values = DataConfig.get_data(self.p_backgrd, self.config)
             backgrd = np.rot90(b_values['detector_data'])
-            self.backgrd_data = xr.DataArray(backgrd, dims=['x', 'y'])
+            self.backgrd_data = xr.DataArray(backgrd, dims=['y', 'x'])
 
             self.backgrd_data.y.values = self.data.y.values
             self.backgrd_data.x.values = self.data.x.values
@@ -194,15 +196,15 @@ class DataConfig(object):
             theta = np.arccos(np.sum(u*v, axis=1)/(np.linalg.norm(u, axis=1) * np.linalg.norm(v, axis=1)))
         else:
             biosans_tube_step_meters = dim_x/1000
-            radius = 1.13
+            radius = self.radius
             tube_step_angle_radians = np.arcsin(biosans_tube_step_meters/radius)
             tube_step_angle_degrees = np.degrees(tube_step_angle_radians)
-            theta = [-tube_step_angle_degrees * x for x in range(160)]
+            theta = [-tube_step_angle_degrees * x for x in range(data.shape[1])]
             theta = np.repeat(np.array(theta), data.shape[0])
         name = ([name] * (size_x * size_y))
 
         # Concatenate all of them
-        allv = np.column_stack((name, iv, jv, xv/1000, yv/1000, zv/10000, theta))
+        allv = np.column_stack((name, iv, jv, xv/1000, yv/1000, zv/1000, theta))
         df = pd.DataFrame(data=allv,
                           columns=['name', 'i', 'j', 'x', 'y', 'z', 'theta'])
         df.set_index(['name', 'i', 'j'], inplace=True)
@@ -223,6 +225,7 @@ def main():
             data_file="Data Examples/BioSANS_exp318_scan0229_0001.xml",
             center_file="Data Examples/BioSANS_exp318_scan0008_0001.xml")
     d.setup()
+
     df = d.make_df(add_wing=True)
     # d.solid_angle()
     # d.display()
