@@ -8,6 +8,10 @@ from numba import jit
 
 
 class Operations(object):
+    """
+    This class does all the necessary calculations
+    All methods are static methods
+    """
 
     def __init__(self):
         pass
@@ -69,6 +73,9 @@ class Operations(object):
     @staticmethod
     def correct_for_sensitivity(sample, flood_data, dark_current=None,
                                 min_sensitivity=0.5, max_sensitivity=1.5):
+        """
+        Returns the data after sensitivity correction
+        """
         if dark_current is not None:
             sample = sample - dark_current
             flood_data = flood_data - dark_current
@@ -90,7 +97,7 @@ class Operations(object):
     @staticmethod
     def find_center(center_data, size, translation):
         """
-        finds the actual center of mass via Gaussian fitting
+        finds the actual center of mass via 2d Gaussian fitting
         """
         data = center_data.values
         pixel_size_x, pixel_size_y = size

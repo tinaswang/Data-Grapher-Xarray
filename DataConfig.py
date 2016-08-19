@@ -63,7 +63,7 @@ class DataConfig(object):
         size_x = d_values.get("pixel_size_x")
         size_y = d_values.get("pixel_size_y")
         self.size = size_x, size_y
-        try:
+        try:  # if there's wing data
             self.detector_wing = xr.DataArray(np.rot90(d_values["detector_wing"]), dims=['y', 'x'])
             x_wing, y_wing = Operations.get_axes_units(
                                     data_shape=self.detector_wing.shape,
@@ -213,7 +213,7 @@ class DataConfig(object):
         xv = data.x.values
         yv = data.y.values
         yv, xv = np.meshgrid(yv, xv)
-        xv = (xv.ravel())/1000
+        xv = (xv.ravel())/1000  # convert from mm to meters
         yv = (yv.ravel())/1000
 
         if wing is False:
@@ -232,10 +232,11 @@ class DataConfig(object):
 
             # Angles:
             angles = [-tube_step_angle_degrees * x for x in range(160)]
-            theta = np.repeat(angles, size_y) - shift
+            theta = np.repeat(angles, size_y)   # - shift
             pixel_positions = np.linspace(-0.54825, 0.54825, 256)
 
         name = ([name] * (size_x * size_y))
+
         # Concatenate all of them
         allv = np.column_stack((name, iv, jv, xv, yv, zv, theta))
         df = pd.DataFrame(data=allv,
@@ -258,7 +259,7 @@ class DataConfig(object):
 
 def main():
     d = DataConfig(
-            config="Data Examples/config.json",
+            config="config.json",
             data_file="Data Examples/BioSANS_exp318_scan0229_0001.xml",
             center_file="Data Examples/BioSANS_exp318_scan0008_0001.xml")
     d.setup()

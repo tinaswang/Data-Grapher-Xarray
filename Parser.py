@@ -5,6 +5,9 @@ import plotly.graph_objs as go
 
 
 class Parser(object):
+    """
+    This class converts from XML to JSON
+    """
 
     def __init__(self, filename):
 

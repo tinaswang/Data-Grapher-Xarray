@@ -8,6 +8,9 @@ import pandas as pd
 
 
 class Data(object):
+    """
+    this version has no config file and no pandas
+    """
     def __init__(self, data_file, center_file=None, background_file=None):
         self.data_f = data_file
         if center_file is not None:
@@ -17,6 +20,10 @@ class Data(object):
 
     @staticmethod
     def get_data(p):
+        """
+        Gets data from files using parser object
+        No config file
+        """
         detector_data = np.rot90(np.array(p.xpath_get("/SPICErack/Data/Detector/data")))
         # Uncomment for files with a sample_det_dist and sample_to_flange
         # distance_1 = p.xpath_get("/SPICErack/Motor_Positions/sample_det_dist/#text")
@@ -26,21 +33,13 @@ class Data(object):
         translation = p.xpath_get("/SPICErack/Motor_Positions/detector_trans/#text")
         # detector_wing = p.xpath_get("/SPICErack/Data/DetectorWing/data")
         return (detector_data, pixel_size_x, pixel_size_y, translation)
-        # , detector_wing)
 
     def setup(self):
         """
         sets up the data for the three files
         """
         self.p_data = Parser(self.data_f)
-        self.data = xr.DataArray(Data.get_data(self.p_data)[0], dims=["x", "y"])
-        # x_axis_units, y_axis_units = Operations.get_axes_units(data_shape=self.detector_wing.shape,
-        #                                                         pixel_size=[pixel_size_x, pixel_size_y])
-        # self.detector_wing = xr.DataArray(Data.get_data(self.p_data)[4],
-        #                                   coords=[y_axis_units, x_axis_units],
-        #                                   dims=["y", "x"])
-        # self.wing_center = Operations.find_center(self.detector_wing,
-        #                                           self.size, self.translation)
+        self.data = xr.DataArray(Data.get_data(self.p_data)[0], dims=["y", "x"])
 
         p_center = Parser(self.center_f)
         size_x = Data.get_data(p_center)[1]
@@ -51,27 +50,22 @@ class Data(object):
         self.center_data = Data.get_data(p_center)[0]
         x_axis_units, y_axis_units = Operations.get_axes_units(
                                             data_shape=self.data.values.shape,
-                                            pixel_size=[size_x, size_y])
+                                            pixel_size=[size_y, size_x])
 
         y_axis_units = y_axis_units + self.translation
         self.center_data = xr.DataArray(
                                     self.center_data,
-                                    coords=[x_axis_units, y_axis_units],
-                                    dims=['x', 'y'])
+                                    coords=[y_axis_units, x_axis_units],
+                                    dims=['y', 'x'])
         self.center = Operations.find_center(self.center_data, self.size,
                                                  self.translation)
         self.data.x.values = self.center_data.x.values
         self.data.y.values = self.center_data.y.values
 
-            # self.wing_center = Operations.find_center(self.detector_wing,
-            #                                           self.size,
-            #                                           self.translation)
-
-
         try:
             p_backgrd = Parser(self.backgrd_f)
             self.backgrd_data = xr.DataArray(Data.get_data(p_backgrd)[0],
-                                             dims=['x', 'y'])
+                                             dims=['y', 'x'])
             self.backgrd_data.y.values = self.data.y.values
             self.backgrd_data.x.values = self.data.x.values
             self.subtracted_data = self.data - self.backgrd_data
@@ -80,7 +74,7 @@ class Data(object):
 
     def display(self):
         """
-        Graphs a plotly line graph
+        Graphs a plotly/matplotlib line graph of radial profile
         """
         p = Parser(self.data_f)
         profile = Operations.integrate(size=(self.size),
@@ -110,6 +104,9 @@ class Data(object):
                            center=self.center)
 
     def solid_angle(self):
+        """
+        Performs solid angle correction
+        """
         try:
             correct = Operations.solid_angle_correction(
                         center=self.center,
@@ -121,6 +118,9 @@ class Data(object):
 
     @staticmethod
     def sensitivity(p_flood, p_sample, p_dark):
+        """
+        Performs sensitivity correction and graphs results using matplotlib
+        """
         flood_data = Data.get_data(p_flood)[0]
         flood_data = np.array(Data.get_data(p_flood)[0])
 
