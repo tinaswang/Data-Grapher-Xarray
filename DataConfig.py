@@ -3,12 +3,15 @@ from Operations import Operations
 from Display import Display
 import numpy as np
 import xarray as xr
-import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
 
 class DataConfig(object):
+    """
+    This is the version of the Data class that includes support for config
+    files and pandas
+    """
     def __init__(self, data_file, center_file=None,
                  background_file=None, config=None):
         self.data_f = data_file
@@ -21,6 +24,10 @@ class DataConfig(object):
 
     @staticmethod
     def get_data(p, config):
+        """
+        Uses json library to turn config file into a dictionary and make the
+        dictionary values the data
+        """
         with open(config, 'r') as f:
             f = f.read()
             config_data = json.loads(f)
@@ -30,6 +37,10 @@ class DataConfig(object):
 
     @staticmethod
     def iterate_dict(d, p, data_dict):
+        """
+        Goes through dictionary and updates values with correct data values
+        from Parser.xpath_get
+        """
         for key, value in d.items():
             if isinstance(value, dict):
                 DataConfig.iterate_dict(value, p, data_dict)
@@ -40,6 +51,8 @@ class DataConfig(object):
     def setup(self):
         """
         sets up the data for the three files
+        takes data the dictionary created from the config files
+        will also set up detector wing if present
         """
         p_data = Parser(self.data_f)
         d_values = DataConfig.get_data(p_data, self.config)
@@ -101,17 +114,21 @@ class DataConfig(object):
 
     def display(self):
         """
-        Graphs a plotly line graph
+        Graphs a plotly line graph of the radial profile
+        If there's no subtracted data, it will call an exception
         """
-        p = Parser(self.data_f)
-        profile = Operations.integrate(size=(self.size),
-                                       center=(self.center[2], self.center[3]),
-                                       data=self.subtracted_data)
+        try:
+            p = Parser(self.data_f)
+            profile = Operations.integrate(size=(self.size),
+                            center=(self.center[2], self.center[3]),
+                            data=self.subtracted_data)
 
-        Display.plot1d(com=(self.center[2], self.center[3]),
+            Display.plot1d(com=(self.center[2], self.center[3]),
                        difference=self.subtracted_data.values,
                        profile=profile,
                        pixel_size=(self.size[0], self.size[1]))
+        except:
+            raise NameError("Background data not found")
 
     def display2d(self):
         """
@@ -131,6 +148,9 @@ class DataConfig(object):
                            center=self.center)
 
     def solid_angle(self):
+        """
+        does solid angle correction
+        """
         try:
             correct = Operations.solid_angle_correction(
                         center=self.center,
@@ -142,6 +162,9 @@ class DataConfig(object):
 
     @staticmethod
     def sensitivity(p_flood, p_sample, p_dark):
+        """
+        performs sensitivity correction
+        """
         flood_data = Data.get_data(p_flood)[0]
         flood_data = np.array(Data.get_data(p_flood)[0])
 
@@ -171,11 +194,16 @@ class DataConfig(object):
 
         return new_sample
 
-    def __setup_df(self, data, size, z=10, name="Detector1", wing=False):
+    def __setup_df(self, data, size, z=10, name="Detector1",
+                   wing=False, radius=1.13, shift=10):
+        """
+        Private function that sets up the pandas DataFrame
+        Calculates theta differently if detector is a wing detector
+        """
         size_x = data.shape[1]
         size_y = data.shape[0]
-        dim_x = size[0]
-        dim_y = size[1]
+        dim_x = size[1]
+        dim_y = size[0]
         offset_x, offset_y = (self.center[0], self.center[1])
 
         iv, jv = np.mgrid[0:size_x, 0:size_y]
@@ -185,36 +213,45 @@ class DataConfig(object):
         xv = data.x.values
         yv = data.y.values
         yv, xv = np.meshgrid(yv, xv)
-        xv = xv.ravel()
-        yv = yv.ravel()
+        xv = (xv.ravel())/1000
+        yv = (yv.ravel())/1000
 
-        zv = np.full_like(xv, z)
         if wing is False:
+            zv = np.full_like(xv, z)
             v = np.stack((xv, yv, zv), axis=-1)
             u = np.stack((np.full_like(xv, offset_x),
                           np.full_like(xv, offset_y), zv), axis=-1)
             theta = np.arccos(np.sum(u*v, axis=1)/(np.linalg.norm(u, axis=1) * np.linalg.norm(v, axis=1)))
         else:
-            biosans_tube_step_meters = dim_x/1000
-            radius = self.radius
-            tube_step_angle_radians = np.arcsin(biosans_tube_step_meters/radius)
-            tube_step_angle_degrees = np.degrees(tube_step_angle_radians)
-            theta = [-tube_step_angle_degrees * x for x in range(data.shape[1])]
-            theta = np.repeat(np.array(theta), data.shape[0])
-        name = ([name] * (size_x * size_y))
+            rad_array = np.full_like(xv, radius)
+            xv_positive = (iv*dim_x)/1000
+            zv = -(rad_array**2 - xv_positive**2)
 
+            tube_step_angle_radians = np.arcsin((dim_y/1000)/radius)
+            tube_step_angle_degrees = np.degrees(tube_step_angle_radians)
+
+            # Angles:
+            angles = [-tube_step_angle_degrees * x for x in range(160)]
+            theta = np.repeat(angles, size_y) - shift
+            pixel_positions = np.linspace(-0.54825, 0.54825, 256)
+
+        name = ([name] * (size_x * size_y))
         # Concatenate all of them
-        allv = np.column_stack((name, iv, jv, xv/1000, yv/1000, zv/1000, theta))
+        allv = np.column_stack((name, iv, jv, xv, yv, zv, theta))
         df = pd.DataFrame(data=allv,
                           columns=['name', 'i', 'j', 'x', 'y', 'z', 'theta'])
         df.set_index(['name', 'i', 'j'], inplace=True)
         return df
 
     def make_df(self, add_wing=False, z=10):
+        """
+        function that uses __setup_df to set up pandas DataFrame
+        Has option to add wing data
+        """
         df = self.__setup_df(self.data, self.size, z=10)
         if add_wing is True:
             df2 = self.__setup_df(data=self.detector_wing, size=self.size,
-                                  name="Detector Wing", wing=True)
+                                  name="Detector Wing", wing=True, shift=self.shift)
             df = df.append(df2)
         return df2
 

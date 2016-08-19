@@ -14,7 +14,9 @@ class Parser(object):
             raise FileNotFoundError(filename)
 
     def parse(self):
-        # This function returns parsed data
+        """
+        This function returns parsed data
+        """
         data = self.__convert(self.filename, self.__setup(self.filename))
         return data
 

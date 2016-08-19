@@ -14,6 +14,9 @@ class Operations(object):
 
     @staticmethod
     def solid_angle(center, data, z=5):
+        """
+        calculates solid angle correction
+        """
         shape = data.values.shape
         cos_theta = np.empty((shape[0], shape[1]))
         for i in range(len(data)):
@@ -27,6 +30,9 @@ class Operations(object):
 
     @staticmethod
     def solid_angle_correction(center, data, z=5):
+        """
+        corrects axes and data values for the solid angle correction
+        """
         cos_theta_cubed = Operations.solid_angle(center, data, z)
         corrected = xr.DataArray(data.values/cos_theta_cubed, dims=["x", "y"])
         corrected.x.values = data.x.values
@@ -38,6 +44,9 @@ class Operations(object):
     @staticmethod
     def calculate_sensitivity(flood_data, min_sensitivity=0.5,
                               max_sensitivity=0.5):
+        """
+        Calculates sensitivity correction
+        """
         num_pixels = (flood_data.shape[0]*flood_data.shape[1] -
                       np.ma.count_masked(flood_data))
         efficiency = flood_data/((1/num_pixels)*np.sum(flood_data))
@@ -71,22 +80,18 @@ class Operations(object):
 
     @staticmethod
     def get_com(center_data):
-        """derived from http://stackoverflow.com/questions/18435003/ndimages-
-        center-of-mass-to-calculate-the-position-of-a-gaussian-peak
+        """
         gets a guess for the center of mass
         """
-        # hist, bins = np.histogram(center_data.ravel(),
-        #                           normed=False,
-        #                           bins=49000)
-        # threshold = bins[np.cumsum(bins) * (bins[1] - bins[0]) > 30000][0]
-        # mnorm2d = np.ma.masked_less(center_data, threshold)
         com = ndimage.measurements.center_of_mass(center_data)
         com = [float(i) for i in com]
         return com
 
     @staticmethod
     def find_center(center_data, size, translation):
-        # finds the actual center of mass via Gaussian fitting
+        """
+        finds the actual center of mass via Gaussian fitting
+        """
         data = center_data.values
         pixel_size_x, pixel_size_y = size
         x = np.linspace(0, 255, 256)
@@ -111,9 +116,6 @@ class Operations(object):
         Derived from http://stackoverflow.com/questions/21242011/most-efficient
         -way-to-calculate-radial-profile
         """
-        # y = np.tile(data.y.values, (256, 1))
-        # x = np.tile(np.transpose([data.x.values]), 192)
-
         y, x = np.indices((data.shape))
         r = np.sqrt((y - center[1])**2 + (x - center[0])**2)
         r = r.astype(np.int)
